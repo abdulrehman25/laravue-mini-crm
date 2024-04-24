@@ -1,9 +1,19 @@
 <script setup>
 
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import {Head, usePage} from "@inertiajs/vue3";
+import {Head} from "@inertiajs/vue3";
+import {Link} from '@inertiajs/vue3'
+import {router} from '@inertiajs/vue3'
 
-const items = usePage().props.companies.data;
+defineProps({
+    companies: {
+        type: Array,
+        default: () => [],
+    },
+});
+const deleteCompany = (id) => {
+    router.delete(`company/${id}`);
+};
 </script>
 
 <template>
@@ -17,7 +27,12 @@ const items = usePage().props.companies.data;
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                    <table class="table table-sm table-striped">
+                    <button class="btn btn-sm btn-warning rounded-pill float-right">
+                        <Link href="company/create">
+                            Create Company
+                        </Link>
+                    </button>
+                    <table class="table table-sm table-striped border text-center" style="width: 100%;">
                         <thead>
                         <tr>
                             <th scope="col">#</th>
@@ -28,14 +43,20 @@ const items = usePage().props.companies.data;
                         </tr>
                         </thead>
                         <tbody>
-                        <tr v-for="(item,index) in items">
+                        <tr v-for="(item,index) in companies.data">
                             <th scope="row">{{ index + 1 }}</th>
                             <td>{{ item.name }}</td>
                             <td>{{ item.email }}</td>
                             <td>{{ item.website }}</td>
                             <td>
-                                <button class="btn btn-sm btn-warning rounded-pill">Edit</button>
-                                <button class="btn btn-sm btn-danger rounded-pill">Delete</button>
+                                <button class="btn btn-sm btn-warning rounded-pill mr-1">
+                                    <Link :href="`company/${item.id}/edit`">
+                                        Edit
+                                    </Link>
+                                </button>
+                                <button class="btn btn-sm btn-danger rounded-pill ml-1" @click="deleteCompany(item.id)">
+                                    Delete
+                                </button>
                             </td>
                         </tr>
                         </tbody>

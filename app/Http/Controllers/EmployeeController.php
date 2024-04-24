@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreEmployeeRequest;
-use App\Http\Requests\UpdateEmployeeRequest;
-use App\Http\Resources\EmployeeResource;
-use App\Models\Employee;
-use Illuminate\Support\Facades\Response;
 use Inertia\Inertia;
+use App\Models\Company;
+use App\Models\Employee;
+use App\Http\Resources\{CompanyResource, EmployeeResource};
+use App\Http\Requests\{UpdateEmployeeRequest, StoreEmployeeRequest};
 
 class EmployeeController extends Controller
 {
@@ -23,19 +22,28 @@ class EmployeeController extends Controller
     }
 
     /**
+     * Create Method for Employee View.
+     */
+    public function create()
+    {
+        return Inertia::render('Employee/Create', [
+            'companies' => CompanyResource::collection(Company::all()),
+        ]);
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreEmployeeRequest $request)
     {
-        $employee = Employee::create([
+        Employee::create([
             'first_name' => $request->validated('first_name'),
             'last_name' => $request->validated('last_name'),
             'company_id' => $request->validated('company_id'),
             'email' => $request->validated('email'),
             'phone' => $request->validated('phone')
         ]);
-        $employee->load(['company:id,name']);
-        return EmployeeResource::make($employee);
+        return redirect()->route('employee.index')->with('success', 'Employee created successfully');
     }
 
     /**
@@ -45,6 +53,18 @@ class EmployeeController extends Controller
     {
         $employee->load(['company:id,name']);
         return EmployeeResource::make($employee);
+    }
+
+    /**
+     * Edit Method for Employee View.
+     */
+    public function edit(Employee $employee)
+    {
+        return Inertia::render('Employee/Create', [
+            'employee' => $employee,
+            'companies' => CompanyResource::collection(Company::all()),
+            'update' => true
+        ]);
     }
 
     /**
@@ -60,7 +80,7 @@ class EmployeeController extends Controller
             'phone' => $request->validated('phone')
         ]);
         $employee->load('company:id,name');
-        return EmployeeResource::make($employee->fresh());
+        return redirect()->route('employee.index')->with('success', 'Employee update successfully');
     }
 
     /**
@@ -69,8 +89,8 @@ class EmployeeController extends Controller
     public function destroy(Employee $employee)
     {
         if ($employee->delete()) {
-            return Response::noContent();
+            return redirect()->route('employee.index')->with('success', 'Employee deleted successfully');
         }
-        return Response::json('Something went wrong!', 500);
+        return redirect()->route('employee.index')->with('error', 'Something went wrong');
     }
 }

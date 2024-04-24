@@ -27,7 +27,7 @@ class UpdateCompanyRequest extends FormRequest
         return [
             'name' => 'required|string',
             'email' => 'sometimes|email:rfc,dns',
-            'logo' => ['sometimes', 'image', new MinImageDimensionsRule(100, 100)],
+            'logo' => ['nullable', 'image', new MinImageDimensionsRule(100, 100)],
             'website' => 'sometimes|url:http,https'
         ];
     }

@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreCompanyRequest;
-use App\Http\Requests\UpdateCompanyRequest;
-use App\Http\Resources\CompanyResource;
-use App\Models\Company;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use App\Models\Company;
+use App\Traits\HelperFunctions;
+use App\Http\Resources\CompanyResource;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\{UpdateCompanyRequest, StoreCompanyRequest};
 
 class CompanyController extends Controller
 {
+    use HelperFunctions;
+
     const LOGO_STORE_PATH = 'media-uploads/company';
 
     /**
@@ -25,6 +26,14 @@ class CompanyController extends Controller
     }
 
     /**
+     * Create Method for Company.
+     */
+    public function create()
+    {
+        return Inertia::render('Company/Create');
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreCompanyRequest $request)
@@ -34,11 +43,11 @@ class CompanyController extends Controller
             'email' => $request->validated('email'),
             'website' => $request->validated('website')
         ];
-        if ($request->has('logo')) {
+        if ($request->hasFile('logo')) {
             $company['logo'] = Storage::disk('public')->putFile(self::LOGO_STORE_PATH, $request->file('logo'));
         }
-        $company = Company::create($company);
-        return CompanyResource::make($company);
+        Company::create($company);
+        return redirect()->route('company.index');
     }
 
     /**
@@ -50,6 +59,15 @@ class CompanyController extends Controller
     }
 
     /**
+     * Edit Method for Company View.
+     */
+    public function edit(Company $company)
+    {
+        return Inertia::render('Company/Create', ['company' => $company, 'update' => true]);
+    }
+
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(UpdateCompanyRequest $request, Company $company)
@@ -59,11 +77,12 @@ class CompanyController extends Controller
             'email' => $request->validated('email'),
             'website' => $request->validated('website')
         ];
-        if ($request->has('logo')) {
+        if ($request->hasFile('logo')) {
+            self::deleteFile($company->logo);
             $companyData['logo'] = Storage::disk('public')->putFile(self::LOGO_STORE_PATH, $request->file('logo'));
         }
         $company->update($companyData);
-        return CompanyResource::make($company);
+        return redirect()->route('company.index');
     }
 
     /**
@@ -71,9 +90,12 @@ class CompanyController extends Controller
      */
     public function destroy(Company $company)
     {
+        $file_path = $company->logo;
         if ($company->delete()) {
-            return Response::noContent();
+            self::deleteFile($file_path);
+            return redirect()->route('company.index')->with('success', 'Company deleted successfully');
         }
-        return Response::json('Something went wrong!', 500);
+        return redirect()->route('company.index')->with('error', 'Something went wrong');
     }
+
 }
