@@ -41,7 +41,7 @@ const submit = () => (props.update ? update() : create());
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Create Employee</h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ props?.update?"Update":"Create" }} Employee</h2>
         </template>
 
         <div class="py-12">
