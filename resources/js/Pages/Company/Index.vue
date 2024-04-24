@@ -39,6 +39,7 @@ const deleteCompany = (id) => {
                             <th scope="col">Name</th>
                             <th scope="col">Email</th>
                             <th scope="col">Website</th>
+                            <th scope="col">Logo</th>
                             <th scope="col">Actions</th>
                         </tr>
                         </thead>
@@ -48,6 +49,11 @@ const deleteCompany = (id) => {
                             <td>{{ item.name }}</td>
                             <td>{{ item.email }}</td>
                             <td>{{ item.website }}</td>
+                            <td>
+                                <a target="_blank" :href="`${item.logo_url}`">
+                                    View
+                                </a>
+                            </td>
                             <td>
                                 <button class="btn btn-sm btn-warning rounded-pill mr-1">
                                     <Link :href="`company/${item.id}/edit`">
